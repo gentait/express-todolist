@@ -4,6 +4,8 @@ const express = require("express");
 //expressアプリを生成する
 const app = express();
 
+app.use(express.static("web"));
+
 // http://localhost:3000/api/v1/list にアクセスしてきたときにTODOリストを返す
 app.get("/api/v1/list", (req, res) => {
   // クライアントに送るJSONデータ
