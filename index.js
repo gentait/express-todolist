@@ -41,13 +41,26 @@ app.post("/api/v1/add", (req, res) => {
 
 //http://localhost:3000/api/v1/item/:idにDELETEで送信してきた時に項目を削除する
 app.delete("/api/v1/item/:id", (req, res) => {
-  console.log(req.params.id);
   const index = todoList.findIndex(item => {
     return item.id === req.params.id;
   });
   if (index >= 0) {
     const deleted = todoList.splice(index, 1);
     console.log(`Deleted: ${JSON.stringify(deleted[0])}`);
+  }
+  res.sendStatus(200);
+});
+
+app.put("/api/v1/item/:id", (req, res) => {
+  const index = todoList.findIndex(item => {
+    return item.id === req.params.id;
+  });
+  if (index >= 0) {
+    const item = todoList[index];
+    if (req.body.done) {
+      item.done = req.body.done === "true";
+    }
+    console.log(JSON.stringify(item));
   }
   res.sendStatus(200);
 });

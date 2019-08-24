@@ -23,6 +23,19 @@
         );
       }
 
+      //チェックボタンを押した時に呼ぶ関数
+      function checkboxListener(event) {
+        const checkbox = event.currentTarget;
+        const body = new FormData();
+        body.append("done", checkbox.checked);
+        fetch(`./api/v1/item/${checkbox.dataset.id}`, {
+          method: "PUT",
+          body
+        }).then(() => {
+          fetchTodoList();
+        });
+      }
+
       //TODOリストを描画する関数
       function renderTodoList(todoList) {
         const todoContainer = document.querySelector("#todo-container");
@@ -33,6 +46,8 @@
           const checkbox = document.createElement("input");
           checkbox.type = "checkbox";
           checkbox.checked = todo.done;
+          checkbox.dataset.id = todo.id;
+          checkbox.addEventListener("change", checkboxListener);
           const text = new Text(todo.title);
           const deleteButton = document.createElement("button");
           deleteButton.dataset.id = todo.id;
