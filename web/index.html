@@ -8,26 +8,76 @@
     <h1>TODOリスト</h1>
     <div>
       <ul id="todo-container"></ul>
+      <input id="new-todo-item-title" /><button id="new-todo-item-add-button">
+        Add
+      </button>
     </div>
     <script>
-      fetch("./api/v1/list")
-        .then(res => res.json())
-        .then(todolist => {
-          const todoContainer = document.querySelector("#todo-container");
-          todoContainer.innerHTML = "";
-          for (const todo of todolist) {
-            const li = document.createElement("li");
-            const label = document.createElement("label");
-            const checkbox = document.createElement("input");
-            checkbox.type = "checkbox";
-            checkbox.checked = todo.done;
-            const text = new Text(todo.title);
-            label.appendChild(checkbox);
-            label.appendChild(text);
-            li.appendChild(label);
-            todoContainer.appendChild(li);
-          }
-        });
+      //Deleteボタンを押した時に呼ばれる関数
+      function deleteButtonListener(event) {
+        const button = event.currentTarget;
+        const id = button.dataset.id;
+
+        fetch(`./api/v1/item/${id}`, { method: "DELETE" }).then(() =>
+          fetchTodoList()
+        );
+      }
+
+      //TODOリストを描画する関数
+      function renderTodoList(todoList) {
+        const todoContainer = document.querySelector("#todo-container");
+        todoContainer.innerHTML = "";
+        for (const todo of todoList) {
+          const li = document.createElement("li");
+          const label = document.createElement("label");
+          const checkbox = document.createElement("input");
+          checkbox.type = "checkbox";
+          checkbox.checked = todo.done;
+          const text = new Text(todo.title);
+          const deleteButton = document.createElement("button");
+          deleteButton.dataset.id = todo.id;
+          deleteButton.textContent = "Delete";
+          deleteButton.addEventListener("click", deleteButtonListener);
+          label.appendChild(checkbox);
+          label.appendChild(text);
+          label.appendChild(deleteButton);
+          li.appendChild(label);
+          todoContainer.appendChild(li);
+        }
+      }
+      async function fetchTodoList() {
+        fetch("./api/v1/list")
+          .then(res => res.json())
+          .then(todoList => {
+            renderTodoList(todoList);
+          });
+      }
+
+      async function postNewTodoItem(todoItem) {
+        const body = new FormData();
+        body.append("title", todoItem.title);
+        return fetch("./api/v1/add", {
+          method: "POST",
+          body
+        }).then(res => res.json());
+      }
+
+      const newTodoItemTitleInput = document.querySelector(
+        "#new-todo-item-title"
+      );
+      const newTodoItemAddButton = document.querySelector(
+        "#new-todo-item-add-button"
+      );
+
+      newTodoItemAddButton.addEventListener("click", event => {
+        const title = newTodoItemTitleInput.value;
+        if (title) {
+          postNewTodoItem({ title }).then(item => {
+            fetchTodoList();
+          });
+        }
+      });
+      fetchTodoList();
     </script>
   </body>
 </html>
